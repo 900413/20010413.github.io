@@ -1,0 +1,24 @@
+AddType application/x-javascript .jsgz
+AddType application/wasm .wasmgz
+AddType text/plain .symbolsgz
+AddType application/octet-stream .memgz
+AddType application/octet-stream .data
+
+AddEncoding gzip .gz
+SetOutputFilter DEFLATE
+
+RewriteEngine on
+# 确保浏览器正确加载 gzip 版本
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{REQUEST_FILENAME}gz -f
+RewriteRule ^(.+)\.(js|wasm|symbols|mem|data)$ $1.$2gz [L]
+
+# 让浏览器正确解压 `.jsgz`、`.wasmgz` 等 gzip 文件
+<IfModule mod_headers.c>
+    <FilesMatch "\.(jsgz|wasmgz|symbolsgz|memgz|datagz)$">
+        Header set Content-Encoding gzip
+        Header set Vary Accept-Encoding
+    </FilesMatch>
+</IfModule>
+
+
